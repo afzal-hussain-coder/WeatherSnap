@@ -66,7 +66,7 @@ fun SavedReportsScreen(navController: NavController, viewModel: ReportViewModel 
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (emptyList<ReportEntity>().isEmpty()) {
+            if (reports.isEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
