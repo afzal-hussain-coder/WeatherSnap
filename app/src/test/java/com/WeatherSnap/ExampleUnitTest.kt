@@ -1,4 +1,4 @@
-package com.WeatherSnap
+package com.weathersnap
 
 import org.junit.Test
 
