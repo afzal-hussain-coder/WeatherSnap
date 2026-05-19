@@ -12,18 +12,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WeatherViewModel @Inject constructor(
-
-    private val repository:
-    WeatherRepository
-
-) : ViewModel() {
+class WeatherViewModel @Inject constructor(private val repository: WeatherRepository) : ViewModel() {
 
 
-    private val _uiState =
-        MutableStateFlow(
-            WeatherUiState()
-        )
+    private val _uiState = MutableStateFlow(WeatherUiState())
 
     val uiState: StateFlow<WeatherUiState> =
         _uiState.asStateFlow()
@@ -49,7 +41,7 @@ class WeatherViewModel @Inject constructor(
                 _uiState.value =
                     _uiState.value.copy(
 
-                        loading = true,
+                        suggestionLoading  = true,
 
                         error = null
                     )
@@ -62,7 +54,7 @@ class WeatherViewModel @Inject constructor(
                 _uiState.value =
                     _uiState.value.copy(
 
-                        loading = false,
+                        suggestionLoading  = false,
 
                         cities = cities
                     )
@@ -72,7 +64,7 @@ class WeatherViewModel @Inject constructor(
                 _uiState.value =
                     _uiState.value.copy(
 
-                        loading = false,
+                        suggestionLoading  = false,
 
                         error = e.message
                     )
@@ -91,17 +83,19 @@ class WeatherViewModel @Inject constructor(
 
         viewModelScope.launch {
 
+            // SHOW SHIMMER
+            _uiState.value = _uiState.value.copy(
+
+                loading = true,
+
+                weather = null,
+
+                selectedCity = city,
+
+                error = null
+            )
+
             try {
-
-                _uiState.value =
-                    _uiState.value.copy(
-
-                        loading = true,
-
-                        selectedCity = city,
-
-                        error = null
-                    )
 
                 val response =
                     repository.getWeather(
@@ -111,26 +105,44 @@ class WeatherViewModel @Inject constructor(
                         city.longitude
                     )
 
-                _uiState.value =
-                    _uiState.value.copy(
+                // SHOW WEATHER
+                _uiState.value = _uiState.value.copy(
 
-                        loading = false,
+                    loading = false,
 
-                        weather = response.current,
+                    weather = response.current,
 
-                        cities = emptyList()
-                    )
+                    cities = emptyList()
+                )
 
             } catch (e: Exception) {
 
-                _uiState.value =
-                    _uiState.value.copy(
+                // SHOW ERROR
+                _uiState.value = _uiState.value.copy(
 
-                        loading = false,
+                    loading = false,
 
-                        error = e.message
-                    )
+                    weather = null,
+
+                    error = e.message
+                )
             }
         }
     }
+
+    fun selectCity(
+        city: City
+    ) {
+
+        _uiState.value =
+            _uiState.value.copy(
+
+                searchQuery = city.name,
+
+                selectedCity = city,
+
+                cities = emptyList()
+            )
+    }
+
 }

@@ -1,15 +1,11 @@
 package com.weathersnap.presentation.weather
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,27 +21,25 @@ import androidx.navigation.NavController
 import com.weathersnap.presentation.components.*
 import com.weathersnap.ui.theme.*
 import com.weathersnap.utils.getWeatherCondition
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.layout.ContentScale
-import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun WeatherScreen(
     navController: NavController,
     viewModel: WeatherViewModel = hiltViewModel()
-
 ) {
+
     val state by viewModel.uiState.collectAsState()
+
     var searchText by remember {
         mutableStateOf("")
     }
 
+    val weatherCache = remember {
+        mutableMapOf<String, Boolean>()
+    }
 
     Box(
+
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(10.dp))
@@ -60,148 +54,173 @@ fun WeatherScreen(
             )
             .padding(8.dp)
     ) {
+
         Column {
-            Spacer(modifier = Modifier.height(40.dp))
+
+            Spacer(
+                modifier = Modifier.height(40.dp)
+            )
+
+
             // HEADER
+
             AppHeader(
+
                 onReportsClick = {
+
                     navController.navigate(
                         "saved_reports"
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(10.dp))
+
+
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+
             // SEARCH CARD
+
             Card(
+
                 shape = RoundedCornerShape(10.dp),
+
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFF11150F)
                 )
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
+
+                Column(
+                    modifier = Modifier.padding(10.dp)
+                ) {
+
                     Row(
+
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+
+                        horizontalArrangement =
+                            Arrangement.SpaceBetween,
+
+                        verticalAlignment =
+                            Alignment.CenterVertically
                     ) {
-                        Box(modifier = Modifier.weight(1f)) {
+
+                        Box(
+                            modifier = Modifier.weight(1f)
+                        ) {
+
                             WeatherSearchField(
+
                                 value = searchText,
+
                                 onValueChange = {
+
                                     searchText = it
+
                                     if (it.length > 2) {
+
                                         viewModel.searchCity(it)
                                     }
-                                })
+                                }
+                            )
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+
+
+
+                        Spacer(
+                            modifier = Modifier.width(10.dp)
+                        )
+
+
+
                         Button(
+
                             onClick = {
-                                if (searchText.length > 2) {
-                                    viewModel.searchCity(
-                                        searchText
-                                    )
+
+                                state.selectedCity?.let { city ->
+
+                                    val cacheKey =
+                                        "${city.latitude},${city.longitude}"
+
+                                    if (
+                                        weatherCache.containsKey(
+                                            cacheKey
+                                        )
+                                    ) {
+
+                                        return@let
+                                    }
+
+                                    weatherCache[cacheKey] =
+                                        true
+
+                                    viewModel.fetchWeather(city)
                                 }
                             },
+
                             shape = RoundedCornerShape(30.dp),
+
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = ButtonColor
                             )
                         ) {
+
                             Text(
+
                                 text = "Search",
+
                                 fontSize = 8.sp,
+
                                 color = DarkText
                             )
                         }
                     }
 
+
+
                     Spacer(
                         modifier = Modifier.height(6.dp)
                     )
 
+
+
                     Text(
-                        text = "Enter more than 2 letters to start city suggestions.",
+
+                        text =
+                            "Enter more than 2 letters to start city suggestions.",
+
                         color = LightText,
+
                         fontSize = 8.sp
                     )
                 }
             }
 
 
-            Spacer(modifier = Modifier.height(10.dp))
 
-            // SUGGESTION LIST
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+
+            // SUGGESTION LOADING
 
             AnimatedVisibility(
 
-                visible = state.cities.isNotEmpty()
+                visible = state.suggestionLoading
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardColor)
+
+                Row(
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+
+                    horizontalArrangement =
+                        Arrangement.Center
                 ) {
-                    Column {
-                        state.cities.forEach { city ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(5.dp)
-                                    .clickable {
-                                        viewModel.fetchWeather(
-                                            city
-                                        )
-                                    },
-                                shape = RoundedCornerShape(50.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor =
-                                        Color.Transparent
-                                ),
-
-                                border = BorderStroke(
-                                    width = 1.dp,
-                                    color =
-                                        BorderColor.copy(
-                                            alpha = 0.5f
-                                        )
-                                )
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            vertical = 5.dp
-                                        ),
-                                    contentAlignment =
-                                        Alignment.Center
-                                ) {
-                                    Text(
-                                        text =
-                                            "${city.name}, ${city.country}",
-                                        color = WhiteText,
-                                        fontSize = 10.sp
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }
-
-
-// LOADING
-            AnimatedVisibility(
-
-                visible = state.loading
-            ) {
-
-                Column {
-
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
 
                     Card(
 
@@ -240,60 +259,210 @@ fun WeatherScreen(
                             )
                         }
                     }
+
                 }
             }
 
-            Spacer(modifier = Modifier.height(5.dp))
 
-// EMPTY STATE
+            // SUGGESTION LIST
+
             AnimatedVisibility(
-                visible = !state.loading && state.weather == null
+
+                visible = state.cities.isNotEmpty()
             ) {
 
                 Card(
+
                     modifier = Modifier.fillMaxWidth(),
+
                     shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardColor)
+
+                    colors = CardDefaults.cardColors(
+                        containerColor = CardColor
+                    )
                 ) {
-                    Column(modifier = Modifier.padding(10.dp)) {
+
+                    Column {
+
+                        state.cities.forEach { city ->
+
+                            Card(
+
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(5.dp)
+                                    .clickable {
+
+                                        searchText =
+                                            "${city.name}, ${city.country}"
+
+                                        viewModel.selectCity(city)
+                                    },
+
+                                shape = RoundedCornerShape(50.dp),
+
+                                colors = CardDefaults.cardColors(
+                                    containerColor =
+                                        Color.Transparent
+                                ),
+
+                                border = BorderStroke(
+                                    width = 1.dp,
+                                    color =
+                                        BorderColor.copy(
+                                            alpha = 0.5f
+                                        )
+                                )
+                            ) {
+
+                                Box(
+
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            vertical = 5.dp
+                                        ),
+
+                                    contentAlignment =
+                                        Alignment.Center
+                                ) {
+
+                                    Text(
+
+                                        text =
+                                            "${city.name}, ${city.country}",
+
+                                        color = WhiteText,
+
+                                        fontSize = 10.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            // SHIMMER VIEW
+
+            AnimatedVisibility(
+
+                visible = state.loading
+            ) {
+
+                Column {
+
+                    Spacer(
+                        modifier = Modifier.height(10.dp)
+                    )
+
+                    WeatherShimmer()
+                }
+            }
+
+
+
+            Spacer(
+                modifier = Modifier.height(5.dp)
+            )
+
+
+            // EMPTY STATE
+
+            AnimatedVisibility(
+
+                visible =
+                    !state.loading &&
+                            state.weather == null
+            ) {
+
+                Card(
+
+                    modifier = Modifier.fillMaxWidth(),
+
+                    shape = RoundedCornerShape(10.dp),
+
+                    colors = CardDefaults.cardColors(
+                        containerColor = CardColor
+                    )
+                ) {
+
+                    Column(
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+
                         Box(
+
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(120.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            TempBoxColor,
-                                            humidityTextColor
-                                        )
-                                    )
+                                .clip(
+                                    RoundedCornerShape(10.dp)
                                 )
-                                .padding(0.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Search,Capture,Save",
-                                color = LightText,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Normal
+                                .background(
 
+                                    brush =
+                                        Brush.horizontalGradient(
+                                            colors = listOf(
+                                                TempBoxColor,
+                                                humidityTextColor
+                                            )
+                                        )
+                                ),
+
+                            contentAlignment =
+                                Alignment.Center
+                        ) {
+
+                            Text(
+
+                                text =
+                                    "Search,Capture,Save",
+
+                                color = LightText,
+
+                                fontSize = 10.sp,
+
+                                fontWeight =
+                                    FontWeight.Normal
                             )
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = "No Weather loaded",
-                            color = WhiteText,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 10.sp,
-                            lineHeight = 8.sp
 
+
+
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
                         )
+
+
+
                         Text(
-                            text = "Enter more than 2 letters, choose a city; then search",
+
+                            text = "No Weather loaded",
+
                             color = WhiteText,
-                            fontWeight = FontWeight.Normal,
+
+                            fontWeight =
+                                FontWeight.SemiBold,
+
+                            fontSize = 10.sp
+                        )
+
+
+
+                        Text(
+
+                            text =
+                                "Enter more than 2 letters, choose a city; then search",
+
+                            color = WhiteText,
+
+                            fontWeight =
+                                FontWeight.Normal,
+
                             fontSize = 8.sp,
+
                             lineHeight = 8.sp
                         )
                     }
@@ -301,20 +470,26 @@ fun WeatherScreen(
             }
 
 
-// WEATHER CARD
+            // WEATHER CARD
+
             AnimatedVisibility(
 
-                visible = state.weather != null
+                visible =
+                    state.weather != null &&
+                            !state.loading
             ) {
 
                 state.weather?.let { weather ->
+
+                    Spacer(
+                        modifier = Modifier.height(5.dp)
+                    )
 
                     Card(
 
                         shape = RoundedCornerShape(20.dp),
 
                         colors = CardDefaults.cardColors(
-
                             containerColor = CardColor
                         )
                     ) {
@@ -362,6 +537,8 @@ fun WeatherScreen(
                                     )
                                 }
 
+
+
                                 Box(
 
                                     modifier = Modifier
@@ -392,10 +569,14 @@ fun WeatherScreen(
                                 }
                             }
 
+
+
                             Spacer(
                                 modifier =
                                     Modifier.height(10.dp)
                             )
+
+
 
                             Row(
 
@@ -417,6 +598,8 @@ fun WeatherScreen(
                                     humidityTextColor
                                 )
 
+
+
                                 WeatherInfoCard(
 
                                     title = "Wind",
@@ -429,6 +612,8 @@ fun WeatherScreen(
 
                                     windTextColor
                                 )
+
+
 
                                 WeatherInfoCard(
 
@@ -444,10 +629,14 @@ fun WeatherScreen(
                                 )
                             }
 
+
+
                             Spacer(
                                 modifier =
                                     Modifier.height(14.dp)
                             )
+
+
 
                             Card(
 
@@ -482,6 +671,8 @@ fun WeatherScreen(
                                         fontSize = 8.sp
                                     )
 
+
+
                                     Text(
 
                                         text =
@@ -497,13 +688,14 @@ fun WeatherScreen(
                                 }
                             }
 
+
+
                             Spacer(
                                 modifier =
                                     Modifier.height(16.dp)
                             )
 
 
-                            // CREATE REPORT BUTTON
 
                             PrimaryButton(
 
@@ -535,6 +727,8 @@ fun WeatherScreen(
                                     navController.navigate(
                                         "create_report"
                                     )
+
+
                                 }
                             )
                         }
@@ -543,6 +737,4 @@ fun WeatherScreen(
             }
         }
     }
-
-
 }

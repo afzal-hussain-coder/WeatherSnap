@@ -3,6 +3,7 @@ package com.weathersnap.persantation.camera
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -36,6 +37,9 @@ fun CustomCameraScreen(
     navController: NavController
 ) {
 
+    BackHandler {
+        navController.popBackStack()
+    }
     val context = LocalContext.current
 
     val lifecycleOwner =

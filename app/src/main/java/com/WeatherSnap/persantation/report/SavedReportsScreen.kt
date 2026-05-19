@@ -2,6 +2,7 @@ package com.weathersnap.persantation.report
 
 import android.net.Uri
 import android.text.format.DateFormat
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -33,6 +34,9 @@ import com.weathersnap.presentation.components.SavedReportScreenAppHeader
 fun SavedReportsScreen(navController: NavController, viewModel: ReportViewModel = hiltViewModel()) {
 
     val reports by viewModel.reports.collectAsState(initial = emptyList())
+    BackHandler {
+        navController.popBackStack()
+    }
 
     Box(
         modifier = Modifier

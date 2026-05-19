@@ -1,6 +1,7 @@
 package com.weathersnap.presentation.report
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -39,6 +40,10 @@ fun CreateReportScreen(
     navController: NavController,
     viewModel: ReportViewModel = hiltViewModel()
 ) {
+
+    BackHandler {
+        navController.popBackStack()
+    }
     val context = LocalContext.current
     val notes = viewModel.notes.collectAsState()
 
@@ -203,7 +208,9 @@ fun CreateReportScreen(
                     PrimaryButton(
                         text = "Capture Photo",
                         onClick = {
-                            navController.navigate("camera_screen")
+                            navController.navigate("camera_screen"){
+                                launchSingleTop = true
+                            }
                         }
                     )
                     Spacer(modifier = Modifier.height(5.dp))

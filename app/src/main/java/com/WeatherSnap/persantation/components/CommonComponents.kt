@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.valentinilk.shimmer.shimmer
 import com.weathersnap.data.local.entity.ReportEntity
 import com.weathersnap.ui.theme.*
 import com.weathersnap.utils.getWeatherCondition
@@ -695,5 +696,92 @@ fun WeatherItem(
         Text(text = title, color = LightText, fontSize = 13.sp)
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = value, color = WhiteText, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun WeatherShimmer() {
+
+    Card(
+
+        modifier = Modifier
+            .fillMaxWidth()
+            .shimmer(),
+
+        shape = RoundedCornerShape(16.dp),
+
+        colors = CardDefaults.cardColors(
+
+            containerColor = CardColor
+        )
+    ) {
+
+        Column(
+
+            modifier = Modifier
+                .padding(20.dp)
+        ) {
+
+            Box(
+
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(24.dp)
+                    .background(
+                        Color.Gray.copy(
+                            alpha = 0.4f
+                        ),
+                        RoundedCornerShape(8.dp)
+                    )
+            )
+
+            Spacer(
+                modifier = Modifier.height(20.dp)
+            )
+
+            Row(
+
+                horizontalArrangement =
+                    Arrangement.SpaceBetween,
+
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                repeat(3) {
+
+                    Box(
+
+                        modifier = Modifier
+                            .size(
+                                width = 90.dp,
+                                height = 70.dp
+                            )
+                            .background(
+                                Color.Gray.copy(
+                                    alpha = 0.4f
+                                ),
+                                RoundedCornerShape(12.dp)
+                            )
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(20.dp)
+            )
+
+            Box(
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(
+                        Color.Gray.copy(
+                            alpha = 0.4f
+                        ),
+                        RoundedCornerShape(12.dp)
+                    )
+            )
+        }
     }
 }

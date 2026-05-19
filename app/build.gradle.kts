@@ -100,8 +100,9 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
 
-    //
+    // Coil and Shimmer Dependencies
     implementation(libs.coil.compose)
+    implementation(libs.shimmer.compose)
 
 
     testImplementation(libs.junit)
