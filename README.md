@@ -1,4 +1,11 @@
 # WeatherSnap ☁️📱
+## Screenshots
+
+![Home](screenshots/home.png.jpeg)
+
+![Report](screenshots/report.png.jpeg)
+
+![Saved](screenshots/saved.png.jpg)
 
 WeatherSnap is a modern Android weather reporting application built using Kotlin, Jetpack Compose, MVVM, Clean Architecture, Room DB, Hilt, Retrofit, and CameraX.
 
