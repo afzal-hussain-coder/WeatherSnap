@@ -35,17 +35,12 @@ import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun WeatherScreen(
-
     navController: NavController,
-
     viewModel: WeatherViewModel = hiltViewModel()
 
 ) {
-
     val state by viewModel.uiState.collectAsState()
-
     var searchText by remember {
-
         mutableStateOf("")
     }
 
@@ -57,11 +52,8 @@ fun WeatherScreen(
             .background(
 
                 brush = Brush.verticalGradient(
-
                     colors = listOf(
-
                         weatherScreenBackgroundStart,
-
                         weatherScreenBackgroundEnd
                     )
                 )
@@ -78,7 +70,7 @@ fun WeatherScreen(
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             // SEARCH CARD
             Card(
                 shape = RoundedCornerShape(10.dp),
@@ -136,6 +128,8 @@ fun WeatherScreen(
                 }
             }
 
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             // SUGGESTION LIST
 
@@ -206,7 +200,7 @@ fun WeatherScreen(
                 Column {
 
                     Spacer(
-                        modifier = Modifier.height(20.dp)
+                        modifier = Modifier.height(5.dp)
                     )
 
                     Card(
@@ -226,7 +220,7 @@ fun WeatherScreen(
 
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp),
+                                .padding(10.dp),
 
                             horizontalArrangement =
                                 Arrangement.spacedBy(16.dp),
@@ -236,29 +230,24 @@ fun WeatherScreen(
                         ) {
 
                             CircularProgressIndicator(
-
                                 color = ButtonColor
                             )
 
                             Text(
-
                                 text = "Loading weather...",
-
-                                color = WhiteText
+                                color = ButtonColor,
+                                fontSize = 10.sp
                             )
                         }
                     }
                 }
             }
 
+            Spacer(modifier = Modifier.height(5.dp))
 
 // EMPTY STATE
             AnimatedVisibility(
-
-                visible =
-                    !state.loading
-                            &&
-                            state.weather == null
+                visible = !state.loading && state.weather == null
             ) {
 
                 Card(
@@ -320,10 +309,6 @@ fun WeatherScreen(
 
                 state.weather?.let { weather ->
 
-                    Spacer(
-                        modifier = Modifier.height(14.dp)
-                    )
-
                     Card(
 
                         shape = RoundedCornerShape(20.dp),
@@ -337,7 +322,7 @@ fun WeatherScreen(
                         Column(
 
                             modifier =
-                                Modifier.padding(20.dp)
+                                Modifier.padding(10.dp)
                         ) {
 
                             Row(
@@ -409,7 +394,7 @@ fun WeatherScreen(
 
                             Spacer(
                                 modifier =
-                                    Modifier.height(14.dp)
+                                    Modifier.height(10.dp)
                             )
 
                             Row(

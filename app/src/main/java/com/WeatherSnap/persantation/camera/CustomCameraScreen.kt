@@ -11,7 +11,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,55 +26,45 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.Alignment
 import com.weathersnap.presentation.components.CustomeCamersCloseButton
 import com.weathersnap.presentation.components.PrimaryButton
 import com.weathersnap.ui.theme.BackgroundColor
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 @Composable
-fun CustomCameraScreen(navController: NavController) {
+fun CustomCameraScreen(
+    navController: NavController
+) {
 
     val context = LocalContext.current
 
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner =
+        LocalLifecycleOwner.current
 
-    var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
+    var imageCapture:
+            ImageCapture? by remember {
 
-    val cameraExecutor: ExecutorService = remember {
-        Executors.newSingleThreadExecutor()
+        mutableStateOf(null)
     }
 
-    Column(
-        modifier = Modifier
+
+
+    Box(modifier = Modifier
             .fillMaxSize()
             .background(
-                BackgroundColor
-            )
-    ) {
-        Spacer(modifier = Modifier.height(40.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp), horizontalArrangement =
-                Arrangement.SpaceBetween,
-            verticalAlignment =
-                androidx.compose.ui.Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Custom Camera",
-                color = Color.White,
-                fontSize = 14.sp,
-                style = MaterialTheme.typography.headlineSmall)
+                BackgroundColor)) {
 
-            CustomeCamersCloseButton(text = "Close") {
-                navController.popBackStack()
-            }
-        }
-
+        // FULL SCREEN CAMERA
 
         AndroidView(
+
             factory = {
+
                 val previewView =
                     PreviewView(it)
+
+                previewView.scaleType =
+                    PreviewView.ScaleType.FILL_CENTER
 
                 val cameraProviderFuture =
                     ProcessCameraProvider.getInstance(it)
@@ -123,54 +114,115 @@ fun CustomCameraScreen(navController: NavController) {
                 previewView
             },
 
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxSize()
         )
 
-        Row(
+        // TOP CONTENT
+
+        Column(
 
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .align(Alignment.TopCenter)
+        ) {
 
+            Spacer(
+                modifier = Modifier.height(40.dp)
+            )
+
+            Row(
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 10.dp,
+                        vertical = 10.dp
+                    ),
+
+                horizontalArrangement =
+                    Arrangement.SpaceBetween,
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Text(
+
+                    text = "Custom Camera",
+
+                    color = Color.White,
+
+                    fontSize = 14.sp,
+
+                    style =
+                        MaterialTheme.typography.headlineSmall
+                )
+                CustomeCamersCloseButton(
+
+                    text = "Close"
+                ) {
+                    navController.popBackStack()
+                }
+            }
+        }
+
+        // BOTTOM BUTTON
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.BottomCenter),
             horizontalArrangement =
                 Arrangement.spacedBy(12.dp)
         ) {
-            PrimaryButton(
-                text = "Capture",
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    capturePhoto(
-                        context = context,
-                        imageCapture =
-                            imageCapture,
-                        onImageCaptured = {
-                            navController
-                                .previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set(
-                                    "captured_image",
-                                    it.toString()
-                                )
-                            navController.popBackStack()
-                        }
-                    )
-                }
-            )
+            Column() {
+                PrimaryButton(
+                    text = "Capture",
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        capturePhoto(
+                            context = context,
+                            imageCapture =
+                                imageCapture,
+                            onImageCaptured = {
+                                navController
+                                    .previousBackStackEntry
+                                    ?.savedStateHandle
+                                    ?.set(
+
+                                        "captured_image",
+
+                                        it.toString()
+                                    )
+
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+                )
+                Spacer(modifier = Modifier.height(40.dp))
+            }
+
         }
 
-        Spacer(modifier = Modifier.height(60.dp))
+
     }
+
 }
 
 
+
 private fun capturePhoto(
+
     context: Context,
+
     imageCapture: ImageCapture?,
+
     onImageCaptured:
         (Uri) -> Unit
 ) {
+
     val photoFile = File(
 
         context.cacheDir,
@@ -185,10 +237,13 @@ private fun capturePhoto(
                 + ".jpg"
     )
 
+
     val outputOptions =
+
         ImageCapture.OutputFileOptions
             .Builder(photoFile)
             .build()
+
 
     imageCapture?.takePicture(
 
@@ -205,7 +260,6 @@ private fun capturePhoto(
 
                 outputFileResults:
                 ImageCapture.OutputFileResults
-
             ) {
 
                 onImageCaptured(
@@ -227,7 +281,6 @@ private fun capturePhoto(
 
                 exception:
                 ImageCaptureException
-
             ) {
 
                 exception.printStackTrace()
